@@ -325,7 +325,7 @@ namespace OrdTarifManager.UI
                 };
                 _btnSpecSelector.MouseLeftButtonDown += (s, e) =>
                 {
-                    OpenEditSpecificationDialog();
+                    OpenSpecificationDropDown();
                 };
             }
 
@@ -542,78 +542,40 @@ namespace OrdTarifManager.UI
 
         private void OnSidebarSpecClicked(string targetSpec)
         {
-            if (_dataTable == null || _dataTable.Columns.Count == 0)
-            {
-                CreateNewTariff();
-                return;
-            }
+            // Direkt umschalten – KEIN Dialogfenster öffnen!
             SetSpecificationByName(targetSpec, true);
         }
 
-        private void OpenEditSpecificationDialog()
+        private void OpenSpecificationDropDown()
         {
-            string currentName = _txtName.Text != null ? _txtName.Text.Trim() : "";
-            string currentSpec = GetCurrentSpecification();
-            bool isCost = currentSpec.IndexOf("(TC)", StringComparison.OrdinalIgnoreCase) >= 0;
-            bool isVolume = currentSpec.IndexOf("Volume", StringComparison.OrdinalIgnoreCase) >= 0;
-            int orderKind = (_cmbOrderKind != null && _cmbOrderKind.SelectedIndex == 1) ? 3 : 2;
-            DateTime validFrom = _dpValidFrom.SelectedDate ?? DateTime.Today;
-            DateTime validTo = _dpValidTo.SelectedDate ?? new DateTime(2099, 12, 31);
+            if (_btnSpecSelector == null) return;
+            var menu = new ContextMenu();
 
-            var dlg = new CreateTariffDialog(this, true, currentName, isCost, isVolume, orderKind, validFrom, validTo);
-            if (dlg.ShowDialog() == true)
+            var specs = new[]
             {
-                try
+                new { Title = "Umsatz • Gewicht (kg)", Spec = "SteppedWeightDistanceConsolidation" },
+                new { Title = "Umsatz • Volumen (m³)", Spec = "SteppedVolumeDistanceConsolidation" },
+                new { Title = "Kosten • Gewicht (kg)", Spec = "(TC)SteppedWeightDistanceConsolidation" },
+                new { Title = "Kosten • Volumen (m³)", Spec = "(TC)SteppedVolumeDistanceConsolidation" }
+            };
+
+            string current = GetCurrentSpecification();
+
+            foreach (var item in specs)
+            {
+                var mi = new MenuItem
                 {
-                    _txtName.Text = dlg.TariffName;
-                    _txtName.ToolTip = dlg.TariffName;
-
-                    _dpValidFrom.SelectedDate = dlg.ValidFrom;
-                    _dpValidTo.SelectedDate = dlg.ValidTo;
-
-                    if (_cmbOrderKind != null)
-                    {
-                        _cmbOrderKind.SelectedIndex = (dlg.SelectedOrderKind == 3) ? 1 : 0;
-                    }
-
-                    string newSpec = dlg.SpecName;
-                    SetSpecificationByName(newSpec, false);
-
-                    if (_dataTable != null && _dataTable.Columns.Count > 0)
-                    {
-                        _engine.ApplySpecificationChange(_dataTable, dlg.IsCost, dlg.IsVolume, dlg.SelectedOrderKind, newSpec);
-
-                        var meta = new TariffMetadata
-                        {
-                            Id = _txtName.Text != null ? _txtName.Text.Trim() : "",
-                            Name = _txtName.Text != null ? _txtName.Text.Trim() : "",
-                            ValidFrom = _dpValidFrom.SelectedDate.HasValue ? _dpValidFrom.SelectedDate.Value.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd"),
-                            ValidTo = _dpValidTo.SelectedDate.HasValue ? _dpValidTo.SelectedDate.Value.ToString("yyyy-MM-dd") : new DateTime(2099, 12, 31).ToString("yyyy-MM-dd"),
-                            Spec = newSpec,
-                            OrderKind = dlg.SelectedOrderKind
-                        };
-                        _engine.UpdateMetadata(meta);
-
-                        BuildGridColumns();
-                        if (_dgTariff.ItemsSource != null)
-                        {
-                            _dgTariff.Items.Refresh();
-                        }
-                        UpdateUiState();
-                    }
-                    else
-                    {
-                        TariffMetadata meta;
-                        _dataTable = _engine.CreateTariff(dlg.TariffName, dlg.IsCost, dlg.IsVolume, dlg.SelectedOrderKind, dlg.ValidFrom, dlg.ValidTo, out meta);
-                        BuildGridColumns();
-                        UpdateUiState();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(this, "Fehler beim Anpassen der Tarifspezifikation:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                    Header = item.Title + "  (" + item.Spec + ")",
+                    IsChecked = string.Equals(current, item.Spec, StringComparison.OrdinalIgnoreCase)
+                };
+                string specToSet = item.Spec;
+                mi.Click += (s, e) => SetSpecificationByName(specToSet, true);
+                menu.Items.Add(mi);
             }
+
+            menu.PlacementTarget = _btnSpecSelector;
+            menu.Placement = PlacementMode.Bottom;
+            menu.IsOpen = true;
         }
 
         private void ApplyCurrentSpecification()
