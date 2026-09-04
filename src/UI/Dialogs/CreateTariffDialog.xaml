@@ -1,0 +1,103 @@
+<Border xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Background="{StaticResource BrushCardBg}"
+        Padding="22">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 0. Name Input -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,13">
+            <Label Content="Tarif Name:" Padding="0,0,0,4"/>
+            <TextBox x:Name="TxtName" Height="34"/>
+        </StackPanel>
+
+        <!-- 1. Tarifart Selection -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,13">
+            <Label Content="1. Tarifart w&#x00E4;hlen:" Padding="0,0,0,4"/>
+            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                <RadioButton x:Name="RbRevenue" Content="Umsatz Tarif" GroupName="TariffKind" IsChecked="True" Margin="0,0,24,0"/>
+                <RadioButton x:Name="RbCost" Content="Kosten Tarif" GroupName="TariffKind"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- 2. Berechnungs-Basis Selection -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,13">
+            <Label Content="2. Berechnungs-Basis:" Padding="0,0,0,4"/>
+            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                <RadioButton x:Name="RbWeight" Content="Gewicht" GroupName="TariffBasis" IsChecked="True" Margin="0,0,24,0"/>
+                <RadioButton x:Name="RbVolume" Content="Volumen" GroupName="TariffBasis"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- 3. Auftragsart Selection -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,13">
+            <Label Content="3. Auftragsart:" Padding="0,0,0,4"/>
+            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                <RadioButton x:Name="RbDistribution" Content="Delivery" GroupName="OrderKind" IsChecked="True" Margin="0,0,24,0"/>
+                <RadioButton x:Name="RbReturn" Content="Return" GroupName="OrderKind"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- 4. Live Specification Preview Badge -->
+        <Border Grid.Row="4" Margin="0,0,0,14" Background="{StaticResource BrushInputBg}" BorderBrush="{StaticResource BrushInputBorder}" BorderThickness="1.2" CornerRadius="6" Padding="12,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Generierte Tarifspezifikation:" FontSize="11" Foreground="{StaticResource BrushTextSecondary}" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                    <TextBlock x:Name="TxtSpecPreview" Text="SteppedWeightDistanceConsolidation" FontSize="13" FontWeight="Bold" Foreground="{StaticResource BrushAccent}"/>
+                </StackPanel>
+
+                <!-- Green Tag / Badge for Delivery/Return on the far right -->
+                <Border x:Name="BadgeOrderKindTag" Grid.Column="1"
+                        Background="#132A1F"
+                        BorderBrush="{StaticResource BrushSuccess}"
+                        BorderThickness="1.2"
+                        CornerRadius="4"
+                        Padding="10,4"
+                        VerticalAlignment="Center"
+                        Margin="10,0,0,0">
+                    <TextBlock x:Name="TxtOrderKindTag"
+                               Text="Delivery"
+                               FontSize="11.5"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource BrushSuccess}"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 5. Dates -->
+        <Grid Grid.Row="5" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <Label Content="G&#x00FC;ltig von:" Padding="0,0,0,4"/>
+                <DatePicker x:Name="DpValidFrom" Height="34"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <Label Content="G&#x00FC;ltig bis:" Padding="0,0,0,4"/>
+                <DatePicker x:Name="DpValidTo" Height="34"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- 7. Action Buttons -->
+        <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
+            <Button x:Name="BtnCancel" Content="Abbrechen" Width="100" Height="34" Margin="0,0,10,0"/>
+            <Button x:Name="BtnCreate" Content="Tarif erstellen" MinWidth="150" Padding="14,0" Height="34" IsEnabled="False"/>
+        </StackPanel>
+    </Grid>
+</Border>

@@ -1,0 +1,9 @@
+<Border xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Background="{StaticResource BrushCardBg}"
+        Padding="20">
+    <Grid>
+        <!-- Dynamic Content Container -->
+        <ContentControl x:Name="ContentArea"/>
+    </Grid>
+</Border>
