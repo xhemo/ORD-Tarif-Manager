@@ -75,7 +75,7 @@ namespace OrdTarifManager.UI.Dialogs
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Fehler beim Lesen der Zwischenablage: " + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DarkMessageBox.Show(this, "Fehler beim Lesen der Zwischenablage: " + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
             if (_rows.Count == 0 || (_rows.Count == 1 && _rows[0].Count <= 1))
@@ -519,7 +519,7 @@ namespace OrdTarifManager.UI.Dialogs
 
             if (colNameTop == "(Ignorieren)" || colNameLeft == "(Ignorieren)" || string.IsNullOrEmpty(colNameTop) || string.IsNullOrEmpty(colNameLeft))
             {
-                MessageBox.Show(this, "Bitte w\u00E4hlen Sie f\u00FCr beide Achsen eine g\u00FCltige Spalte aus.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DarkMessageBox.Show(this, "Bitte w\u00E4hlen Sie f\u00FCr beide Achsen eine g\u00FCltige Spalte aus.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -595,7 +595,7 @@ namespace OrdTarifManager.UI.Dialogs
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Fehler beim Verarbeiten des Imports:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                DarkMessageBox.Show(this, "Fehler beim Verarbeiten des Imports:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

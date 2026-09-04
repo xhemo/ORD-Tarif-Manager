@@ -153,7 +153,7 @@ namespace OrdTarifManager.UI.Dialogs
 
             if (string.IsNullOrEmpty(TariffName))
             {
-                MessageBox.Show(this, "Bitte geben Sie einen Tarifnamen ein.", "Hinweis", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DarkMessageBox.Show(this, "Bitte geben Sie einen Tarifnamen ein.", "Hinweis", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 

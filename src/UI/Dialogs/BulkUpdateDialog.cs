@@ -281,14 +281,14 @@ namespace OrdTarifManager.UI.Dialogs
 
             if (string.IsNullOrEmpty(col))
             {
-                MessageBox.Show(this, "Keine Spalte gew\u00E4hlt.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DarkMessageBox.Show(this, "Keine Spalte gew\u00E4hlt.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             double rawVal = NumberParser.CleanNumber(valStr);
             if (rawVal == 0.0 && valStr != "0" && valStr != "0.0" && valStr != "0,0")
             {
-                MessageBox.Show(this, "Ung\u00FCltiger Zahlenwert f\u00FCr die prozentuale \u00C4nderung.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DarkMessageBox.Show(this, "Ung\u00FCltiger Zahlenwert f\u00FCr die prozentuale \u00C4nderung.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -301,7 +301,7 @@ namespace OrdTarifManager.UI.Dialogs
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Fehler beim Anwenden der \u00C4nderung:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                DarkMessageBox.Show(this, "Fehler beim Anwenden der \u00C4nderung:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

@@ -535,7 +535,7 @@ namespace OrdTarifManager.UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(this, "Fehler beim Erstellen des Tarifs:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                    DarkMessageBox.Show(this, "Fehler beim Erstellen des Tarifs:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -841,7 +841,7 @@ namespace OrdTarifManager.UI
         {
             if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             {
-                MessageBox.Show(this, "Die angegebene Datei konnte nicht gefunden werden:\n" + filePath, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                DarkMessageBox.Show(this, "Die angegebene Datei konnte nicht gefunden werden:\n" + filePath, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -860,7 +860,7 @@ namespace OrdTarifManager.UI
                 string errorMsg;
                 if (!_engine.LoadTemplate(filePath, out errorMsg))
                 {
-                    MessageBox.Show(this, "Fehler beim Laden der XML-Datei:\n" + errorMsg, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                    DarkMessageBox.Show(this, "Fehler beim Laden der XML-Datei:\n" + errorMsg, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -915,7 +915,7 @@ namespace OrdTarifManager.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Fehler beim Einlesen der XML-Datei:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                DarkMessageBox.Show(this, "Fehler beim Einlesen der XML-Datei:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1268,7 +1268,7 @@ namespace OrdTarifManager.UI
 
             if (_dataTable == null || _dataTable.Columns.Count == 0)
             {
-                MessageBox.Show(this, "Kein Schema verfügbar. Bitte laden oder erstellen Sie zuerst einen Tarif.", "Hinweis", MessageBoxButton.OK, MessageBoxImage.Information);
+                DarkMessageBox.Show(this, "Kein Schema verfügbar. Bitte laden oder erstellen Sie zuerst einen Tarif.", "Hinweis", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -1310,7 +1310,7 @@ namespace OrdTarifManager.UI
             if (selectedItems == null || selectedItems.Count == 0)
             {
                 // Delete all rows confirmation
-                var result = MessageBox.Show(this, "M\u00F6chten Sie wirklich ALLE Zeilen l\u00F6schen?", "L\u00F6schen best\u00E4tigen", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = DarkMessageBox.Show(this, "M\u00F6chten Sie wirklich ALLE Zeilen l\u00F6schen?", "L\u00F6schen best\u00E4tigen", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
                     _dataTable.Rows.Clear();
@@ -1321,7 +1321,7 @@ namespace OrdTarifManager.UI
             {
                 // Delete selected rows confirmation
                 int count = selectedItems.Count;
-                var result = MessageBox.Show(this, string.Format("M\u00F6chten Sie wirklich {0} ausgew\u00E4hlte Zeile(n) l\u00F6schen?", count), "L\u00F6schen best\u00E4tigen", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = DarkMessageBox.Show(this, string.Format("M\u00F6chten Sie wirklich {0} ausgew\u00E4hlte Zeile(n) l\u00F6schen?", count), "L\u00F6schen best\u00E4tigen", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
                     var rowsToDelete = new List<DataRow>();
@@ -1361,7 +1361,7 @@ namespace OrdTarifManager.UI
         {
             if (_dataTable == null || _dataTable.Columns.Count == 0)
             {
-                MessageBox.Show(this, "Bitte erstelle erst einen neuen oder \u00F6ffne einen bestehenden Tarif.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DarkMessageBox.Show(this, "Bitte erstelle erst einen neuen oder \u00F6ffne einen bestehenden Tarif.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -1422,7 +1422,7 @@ namespace OrdTarifManager.UI
 
             if (_dataTable == null || _dataTable.Rows.Count == 0)
             {
-                MessageBox.Show(this, "Tabelle ist leer. Bitte laden Sie zuerst einen Tarif.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                DarkMessageBox.Show(this, "Tabelle ist leer. Bitte laden Sie zuerst einen Tarif.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -1460,7 +1460,7 @@ namespace OrdTarifManager.UI
 
             if (_dataTable == null || _dataTable.Rows.Count == 0)
             {
-                MessageBox.Show(this, "Es sind keine Zeilen zum Generieren vorhanden.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DarkMessageBox.Show(this, "Es sind keine Zeilen zum Generieren vorhanden.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -1503,7 +1503,7 @@ namespace OrdTarifManager.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Fehler beim Generieren der XML-Datei:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                DarkMessageBox.Show(this, "Fehler beim Generieren der XML-Datei:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -1517,7 +1517,7 @@ namespace OrdTarifManager.UI
 
             if (_dataTable == null || _dataTable.Rows.Count == 0)
             {
-                MessageBox.Show(this, "Es sind keine Zeilen zum Generieren vorhanden.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DarkMessageBox.Show(this, "Es sind keine Zeilen zum Generieren vorhanden.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -1549,7 +1549,7 @@ namespace OrdTarifManager.UI
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this, string.Format("Das {0}-Verzeichnis konnte nicht erreicht werden:\n{1}\n\nFehler: {2}\n\nBitte stellen Sie sicher, dass das Netzlaufwerk N:\\ verbunden und erreichbar ist.", envName, targetDir, ex.Message),
+                        DarkMessageBox.Show(this, string.Format("Das {0}-Verzeichnis konnte nicht erreicht werden:\n{1}\n\nFehler: {2}\n\nBitte stellen Sie sicher, dass das Netzlaufwerk N:\\ verbunden und erreichbar ist.", envName, targetDir, ex.Message),
                             "Netzwerkpfad nicht erreichbar", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
@@ -1563,7 +1563,7 @@ namespace OrdTarifManager.UI
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this, string.Format("Das Archiv-Verzeichnis für {0} konnte nicht erreicht oder erstellt werden:\n{1}\n\nFehler: {2}\n\nBitte stellen Sie sicher, dass das Netzlaufwerk N:\\ verbunden und erreichbar ist.", envName, backupDir, ex.Message),
+                        DarkMessageBox.Show(this, string.Format("Das Archiv-Verzeichnis für {0} konnte nicht erreicht oder erstellt werden:\n{1}\n\nFehler: {2}\n\nBitte stellen Sie sicher, dass das Netzlaufwerk N:\\ verbunden und erreichbar ist.", envName, backupDir, ex.Message),
                             "Archivpfad nicht erreichbar", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
@@ -1599,7 +1599,7 @@ namespace OrdTarifManager.UI
                         "Möchten Sie den bestehenden Tarif wirklich im ORD überschreiben?",
                         envName, fileName, dateStr);
 
-                    var result = MessageBox.Show(this, warnMessage,
+                    var result = DarkMessageBox.Show(this, warnMessage,
                         string.Format("Tarif auf {0} überschreiben?", envName),
                         MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
 
@@ -1620,7 +1620,7 @@ namespace OrdTarifManager.UI
                 }
                 catch (Exception backupEx)
                 {
-                    MessageBox.Show(this, string.Format("Der Tarif wurde auf {0} hochgeladen, aber die Sicherungskopie im Archiv konnte nicht gespeichert werden:\n{1}", envName, backupEx.Message),
+                    DarkMessageBox.Show(this, string.Format("Der Tarif wurde auf {0} hochgeladen, aber die Sicherungskopie im Archiv konnte nicht gespeichert werden:\n{1}", envName, backupEx.Message),
                         "Hinweis", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
@@ -1630,7 +1630,7 @@ namespace OrdTarifManager.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Fehler beim Speichern der XML-Datei:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                DarkMessageBox.Show(this, "Fehler beim Speichern der XML-Datei:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2115,7 +2115,7 @@ namespace OrdTarifManager.UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(this, "Fehler beim Öffnen:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                    DarkMessageBox.Show(this, "Fehler beim Öffnen:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             };
             menu.Items.Add(itemExplorer);
@@ -2140,7 +2140,7 @@ namespace OrdTarifManager.UI
                 else
                 {
                     string shownPath = Directory.Exists(backupDir) ? backupDir : mainDir;
-                    MessageBox.Show(this,
+                    DarkMessageBox.Show(this,
                         string.Format("Das Verzeichnis für {0} ist derzeit nicht erreichbar:\n{1}\n\nBitte prüfen Sie, ob das Netzlaufwerk N:\\ verbunden ist.",
                             isProd ? "PROD" : "TEST", shownPath),
                         "Verzeichnis nicht erreichbar",
@@ -2150,7 +2150,7 @@ namespace OrdTarifManager.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Fehler beim Öffnen des Verzeichnisses:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                DarkMessageBox.Show(this, "Fehler beim Öffnen des Verzeichnisses:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -2187,12 +2187,12 @@ namespace OrdTarifManager.UI
                 }
                 else
                 {
-                    MessageBox.Show(this, "Das Verzeichnis konnte nicht erreicht werden:\n" + folderPath, "Hinweis", MessageBoxButton.OK, MessageBoxImage.Information);
+                    DarkMessageBox.Show(this, "Das Verzeichnis konnte nicht erreicht werden:\n" + folderPath, "Hinweis", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Fehler beim Öffnen des Verzeichnisses:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                DarkMessageBox.Show(this, "Fehler beim Öffnen des Verzeichnisses:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Threading;
 using OrdTarifManager.Core;
 using OrdTarifManager.UI;
+using OrdTarifManager.UI.Dialogs;
 
 namespace OrdTarifManager
 {
@@ -23,7 +24,7 @@ namespace OrdTarifManager
 
         private static void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            MessageBox.Show("Ein unerwarteter Fehler ist aufgetreten:\n" + e.Exception.Message + "\n\nDetails:\n" + e.Exception.StackTrace,
+            DarkMessageBox.Show("Ein unerwarteter Fehler ist aufgetreten:\n" + e.Exception.Message + "\n\nDetails:\n" + e.Exception.StackTrace,
                             "Anwendungsfehler", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
@@ -39,7 +40,7 @@ namespace OrdTarifManager
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Fehler beim Laden des Themes: " + ex.Message, "Startfehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+                DarkMessageBox.Show("Fehler beim Laden des Themes: " + ex.Message, "Startfehler", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }
