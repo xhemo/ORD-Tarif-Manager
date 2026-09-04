@@ -184,7 +184,7 @@ host=github.com
 
                 if ($targetRelease.assets) {
                     foreach ($asset in $targetRelease.assets) {
-                        if ($asset.name -like "*ORD*Tarif*Manager*.exe") {
+                        if ($asset.name -like "*ORD*Tarif*Manager*.exe" -or $asset.name -like "*ORD*.exe") {
                             Invoke-RestMethod -Uri "https://api.github.com/repos/$repoOwner/$repoName/releases/assets/$($asset.id)" -Headers $apiHeaders -Method Delete -ErrorAction SilentlyContinue | Out-Null
                         }
                     }
@@ -193,7 +193,7 @@ host=github.com
                 $rawBytes = [System.IO.File]::ReadAllBytes($exeFile)
                 $assetName = "ORD Tarif Manager.exe"
                 $escapedName = [System.Uri]::EscapeDataString($assetName)
-                $uploadUrl = "https://uploads.github.com/repos/$repoOwner/$repoName/releases/$releaseId/assets?name=$escapedName"
+                $uploadUrl = "https://uploads.github.com/repos/$repoOwner/$repoName/releases/$releaseId/assets?name=$escapedName&label=$escapedName"
 
                 $wc = New-Object System.Net.WebClient
                 $wc.Headers.Add("Authorization", "Bearer $token")
@@ -201,7 +201,16 @@ host=github.com
                 $wc.Headers.Add("Content-Type", "application/octet-stream")
                 $wc.Headers.Add("Accept", "application/vnd.github+json")
 
-                $null = $wc.UploadData($uploadUrl, "POST", $rawBytes)
+                $resBytes = $wc.UploadData($uploadUrl, "POST", $rawBytes)
+                $resStr = [System.Text.Encoding]::UTF8.GetString($resBytes)
+                $uploadedAsset = $resStr | ConvertFrom-Json
+                if ($uploadedAsset -and $uploadedAsset.id) {
+                    $patchBody = @{
+                        label = "ORD Tarif Manager.exe"
+                    } | ConvertTo-Json
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/$repoOwner/$repoName/releases/assets/$($uploadedAsset.id)" -Headers $apiHeaders -Method Patch -Body $patchBody -ContentType "application/json" -ErrorAction SilentlyContinue | Out-Null
+                }
+
                 $releaseUploaded = $true
                 Write-Step -StepNum "6/6" -Title "Release EXE hochladen (GitHub Releases)" -Status "Bereitgestellt ($tagName)"
             }
