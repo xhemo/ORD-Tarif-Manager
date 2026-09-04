@@ -38,7 +38,7 @@
                             <Image x:Name="ImgAppLogo" Stretch="Uniform"/>
                         </Border>
                         <TextBlock Grid.Column="1"
-                                   Text="ORD Tarif Manager"
+                                   Text="ORD_Tarif_Manager"
                                    FontSize="13.5"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource BrushTextPrimary}"
@@ -545,7 +545,7 @@
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="Willkommen im ORD Tarif Manager"
+                        <TextBlock Text="Willkommen im ORD_Tarif_Manager"
                                    FontSize="20"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource BrushTextPrimary}"

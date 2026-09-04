@@ -148,7 +148,7 @@ namespace OrdTarifManager.UI
 
         public MainWindow()
         {
-            Title = "ORD Tarif Manager";
+            Title = "ORD_Tarif_Manager";
             Width = 1320;
             Height = 800;
             MinWidth = 980;

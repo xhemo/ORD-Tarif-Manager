@@ -39,11 +39,11 @@ set RESOURCES=/resource:src\UI\Styles\Theme.xaml,Theme.xaml ^
 rem Assemblies
 set REFS=/r:PresentationFramework.dll,PresentationCore.dll,WindowsBase.dll,System.Xaml.dll,System.Xml.dll,System.Xml.Linq.dll,System.Data.dll,System.dll,System.Core.dll
 
-echo [INFO] Compiling ORD Tarif Manager.exe...
-"%CSC%" /nologo /target:winexe /win32icon:"src\Resources\app.ico" /optimize+ /codepage:65001 /out:"ORD Tarif Manager.exe" /lib:"%WPF_LIB%" %REFS% %RESOURCES% %SOURCES%
+echo [INFO] Compiling ORD_Tarif_Manager.exe...
+"%CSC%" /nologo /target:winexe /win32icon:"src\Resources\app.ico" /optimize+ /codepage:65001 /out:"ORD_Tarif_Manager.exe" /lib:"%WPF_LIB%" %REFS% %RESOURCES% %SOURCES%
 
 if %errorlevel% equ 0 (
-    echo [SUCCESS] Build succeeded: ORD Tarif Manager.exe
+    echo [SUCCESS] Build succeeded: ORD_Tarif_Manager.exe
     exit /b 0
 ) else (
     echo [ERROR] Build failed with exit code %errorlevel%

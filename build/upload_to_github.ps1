@@ -1,5 +1,5 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$Host.UI.RawUI.WindowTitle = "ORD Tarif Manager - GitHub Sync"
+$Host.UI.RawUI.WindowTitle = "ORD_Tarif_Manager - GitHub Sync"
 
 Clear-Host
 
@@ -9,7 +9,7 @@ Clear-Host
 function Write-Header {
     Write-Host ""
     Write-Host "  ======================================================================" -ForegroundColor DarkCyan
-    Write-Host "     ORD TARIF MANAGER  -  GITHUB AUTO-SYNC" -ForegroundColor Cyan
+    Write-Host "     ORD_TARIF_MANAGER  -  GITHUB AUTO-SYNC" -ForegroundColor Cyan
     Write-Host "  ======================================================================" -ForegroundColor DarkCyan
     Write-Host ""
 }
@@ -98,7 +98,7 @@ $null = & $gitCmd add . 2>&1
 
 $statusOutput = (& $gitCmd status --porcelain 2>&1)
 $timeStr = Get-Date -Format "dd.MM.yyyy HH:mm:ss"
-$commitMsg = "ORD Tarif Manager Release $timeStr"
+$commitMsg = "ORD_Tarif_Manager Release $timeStr"
 
 if ($statusOutput) {
     $null = & $gitCmd commit -m "$commitMsg" 2>&1
@@ -134,7 +134,7 @@ if ($pushSuccess) {
 # =========================================================================
 # STEP 6: GITHUB RELEASES & STANDALONE EXE UPLOAD
 # =========================================================================
-$exeFile = Join-Path $projectDir "ORD Tarif Manager.exe"
+$exeFile = Join-Path $projectDir "ORD_Tarif_Manager.exe"
 
 if (-not (Test-Path $exeFile)) {
     cmd.exe /c "build.cmd" | Out-Null
@@ -170,7 +170,7 @@ host=github.com
                 $createBody = @{
                     tag_name = $tagName
                     target_commitish = "main"
-                    name = "ORD Tarif Manager $tagName"
+                    name = "ORD_Tarif_Manager $tagName"
                     body = "Standalone-Release für Windows`n`n- 100% portable Single-File-EXE ohne Installation`n- Basiert auf Windows .NET Framework 4.8.1"
                     draft = $false
                     prerelease = $false
@@ -191,9 +191,8 @@ host=github.com
                 }
 
                 $rawBytes = [System.IO.File]::ReadAllBytes($exeFile)
-                $assetName = "ORD Tarif Manager.exe"
-                $escapedName = [System.Uri]::EscapeDataString($assetName)
-                $uploadUrl = "https://uploads.github.com/repos/$repoOwner/$repoName/releases/$releaseId/assets?name=$escapedName&label=$escapedName"
+                $assetName = "ORD_Tarif_Manager.exe"
+                $uploadUrl = "https://uploads.github.com/repos/$repoOwner/$repoName/releases/$releaseId/assets?name=$assetName&label=$assetName"
 
                 $wc = New-Object System.Net.WebClient
                 $wc.Headers.Add("Authorization", "Bearer $token")
@@ -206,7 +205,7 @@ host=github.com
                 $uploadedAsset = $resStr | ConvertFrom-Json
                 if ($uploadedAsset -and $uploadedAsset.id) {
                     $patchBody = @{
-                        label = "ORD Tarif Manager.exe"
+                        label = "ORD_Tarif_Manager.exe"
                     } | ConvertTo-Json
                     Invoke-RestMethod -Uri "https://api.github.com/repos/$repoOwner/$repoName/releases/assets/$($uploadedAsset.id)" -Headers $apiHeaders -Method Patch -Body $patchBody -ContentType "application/json" -ErrorAction SilentlyContinue | Out-Null
                 }
