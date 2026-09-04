@@ -184,15 +184,15 @@ host=github.com
 
                 if ($targetRelease.assets) {
                     foreach ($asset in $targetRelease.assets) {
-                        if ($asset.name -eq "ORD Tarif Manager.exe" -or $asset.name -eq "ORD.Tarif.Manager.exe") {
+                        if ($asset.name -like "*ORD*Tarif*Manager*.exe") {
                             Invoke-RestMethod -Uri "https://api.github.com/repos/$repoOwner/$repoName/releases/assets/$($asset.id)" -Headers $apiHeaders -Method Delete -ErrorAction SilentlyContinue | Out-Null
                         }
                     }
                 }
 
-                $fileName = [System.IO.Path]::GetFileName($exeFile)
-                $escapedName = [System.Uri]::EscapeDataString($fileName)
-                $uploadUrl = "https://uploads.github.com/repos/$repoOwner/$repoName/releases/$releaseId/assets?name=$escapedName"
+                $rawBytes = [System.IO.File]::ReadAllBytes($exeFile)
+                $assetName = "ORD-Tarif-Manager.exe"
+                $uploadUrl = "https://uploads.github.com/repos/$repoOwner/$repoName/releases/$releaseId/assets?name=$assetName"
 
                 $wc = New-Object System.Net.WebClient
                 $wc.Headers.Add("Authorization", "Bearer $token")
@@ -200,7 +200,7 @@ host=github.com
                 $wc.Headers.Add("Content-Type", "application/octet-stream")
                 $wc.Headers.Add("Accept", "application/vnd.github+json")
 
-                $null = $wc.UploadFile($uploadUrl, "POST", $exeFile)
+                $null = $wc.UploadData($uploadUrl, "POST", $rawBytes)
                 $releaseUploaded = $true
                 Write-Step -StepNum "6/6" -Title "Release EXE hochladen (GitHub Releases)" -Status "Bereitgestellt ($tagName)"
             }
