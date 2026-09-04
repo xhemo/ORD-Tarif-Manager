@@ -732,20 +732,66 @@
                                         TextOptions.TextFormattingMode="Display"
                                         TextOptions.TextRenderingMode="ClearType"
                                         RenderOptions.ClearTypeHint="Enabled">
-                                    <StackPanel Width="205">
+                                    <StackPanel Width="220">
                                         <Button x:Name="BtnExportProd"
-                                                Content="&#x1F680;  Direkt auf PROD laden"
                                                 Style="{StaticResource StandardBtn}"
                                                 HorizontalContentAlignment="Left"
                                                 Height="32"
                                                 Padding="10,4"
-                                                Margin="0,0,0,4"/>
+                                                Margin="0,0,0,4">
+                                            <Grid>
+                                                <!-- Normal State -->
+                                                <StackPanel x:Name="PnlExportProdNormal" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="&#x1F680;" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Direkt auf PROD laden" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <!-- Loading State -->
+                                                <StackPanel x:Name="PnlExportProdLoading" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                                                    <Canvas Width="15" Height="15" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                        <Ellipse Width="15" Height="15" Stroke="#263147" StrokeThickness="2"/>
+                                                        <Path Data="M 7.5 0 A 7.5 7.5 0 0 1 15 7.5"
+                                                              Stroke="{StaticResource BrushAccent}"
+                                                              StrokeThickness="2"
+                                                              StrokeStartLineCap="Round"
+                                                              StrokeEndLineCap="Round">
+                                                            <Path.RenderTransform>
+                                                                <RotateTransform x:Name="SpinnerProdTransform" CenterX="7.5" CenterY="7.5"/>
+                                                            </Path.RenderTransform>
+                                                        </Path>
+                                                    </Canvas>
+                                                    <TextBlock Text="Wird auf PROD geladen..." Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
                                         <Button x:Name="BtnExportTest"
-                                                Content="&#x1F9EA;  Direkt auf TEST laden"
                                                 Style="{StaticResource StandardBtn}"
                                                 HorizontalContentAlignment="Left"
                                                 Height="32"
-                                                Padding="10,4"/>
+                                                Padding="10,4">
+                                            <Grid>
+                                                <!-- Normal State -->
+                                                <StackPanel x:Name="PnlExportTestNormal" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="&#x1F9EA;" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Direkt auf TEST laden" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <!-- Loading State -->
+                                                <StackPanel x:Name="PnlExportTestLoading" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                                                    <Canvas Width="15" Height="15" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                        <Ellipse Width="15" Height="15" Stroke="#263147" StrokeThickness="2"/>
+                                                        <Path Data="M 7.5 0 A 7.5 7.5 0 0 1 15 7.5"
+                                                              Stroke="{StaticResource BrushAccent}"
+                                                              StrokeThickness="2"
+                                                              StrokeStartLineCap="Round"
+                                                              StrokeEndLineCap="Round">
+                                                            <Path.RenderTransform>
+                                                                <RotateTransform x:Name="SpinnerTestTransform" CenterX="7.5" CenterY="7.5"/>
+                                                            </Path.RenderTransform>
+                                                        </Path>
+                                                    </Canvas>
+                                                    <TextBlock Text="Wird auf TEST geladen..." Foreground="{StaticResource BrushAccent}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
                                     </StackPanel>
                                 </Border>
                             </Grid>

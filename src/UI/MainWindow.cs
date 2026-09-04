@@ -15,6 +15,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Win32;
 using OrdTarifManager.Core;
 using OrdTarifManager.UI.Dialogs;
@@ -129,6 +130,13 @@ namespace OrdTarifManager.UI
         private TranslateTransform _flyoutTransform;
         private Button _btnExportProd;
         private Button _btnExportTest;
+        private FrameworkElement _pnlExportProdNormal;
+        private FrameworkElement _pnlExportProdLoading;
+        private RotateTransform _spinnerProdTransform;
+        private FrameworkElement _pnlExportTestNormal;
+        private FrameworkElement _pnlExportTestLoading;
+        private RotateTransform _spinnerTestTransform;
+        private bool _isExporting;
         private FrameworkElement _badgeSuccessNotification;
         private ScaleTransform _badgeScale;
         private TranslateTransform _badgeTranslate;
@@ -234,6 +242,12 @@ namespace OrdTarifManager.UI
             _flyoutTransform = (TranslateTransform)root.FindName("FlyoutTransform");
             _btnExportProd = (Button)root.FindName("BtnExportProd");
             _btnExportTest = (Button)root.FindName("BtnExportTest");
+            _pnlExportProdNormal = (FrameworkElement)root.FindName("PnlExportProdNormal");
+            _pnlExportProdLoading = (FrameworkElement)root.FindName("PnlExportProdLoading");
+            _spinnerProdTransform = (RotateTransform)root.FindName("SpinnerProdTransform");
+            _pnlExportTestNormal = (FrameworkElement)root.FindName("PnlExportTestNormal");
+            _pnlExportTestLoading = (FrameworkElement)root.FindName("PnlExportTestLoading");
+            _spinnerTestTransform = (RotateTransform)root.FindName("SpinnerTestTransform");
             _badgeSuccessNotification = (FrameworkElement)root.FindName("BadgeSuccessNotification");
             _badgeScale = (ScaleTransform)root.FindName("BadgeScale");
             _badgeTranslate = (TranslateTransform)root.FindName("BadgeTranslate");
@@ -275,12 +289,13 @@ namespace OrdTarifManager.UI
                 };
                 _pnlExportContainer.MouseLeave += (s, e) =>
                 {
+                    if (_isExporting) return;
                     if (_flyoutCloseTimer != null) _flyoutCloseTimer.Stop();
                     _flyoutCloseTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(220) };
                     _flyoutCloseTimer.Tick += (ts, te) =>
                     {
                         _flyoutCloseTimer.Stop();
-                        HideExportFlyout(false);
+                        if (!_isExporting) HideExportFlyout(false);
                     };
                     _flyoutCloseTimer.Start();
                 };
@@ -1532,8 +1547,54 @@ namespace OrdTarifManager.UI
             }
         }
 
-        private void ExportDirectly(string targetDir, string backupDir, string envName)
+        private void SetExportLoading(bool isProd, bool isLoading)
         {
+            _isExporting = isLoading;
+
+            var normalPnl = isProd ? _pnlExportProdNormal : _pnlExportTestNormal;
+            var loadingPnl = isProd ? _pnlExportProdLoading : _pnlExportTestLoading;
+            var spinnerTransform = isProd ? _spinnerProdTransform : _spinnerTestTransform;
+
+            if (isLoading)
+            {
+                if (normalPnl != null) normalPnl.Visibility = Visibility.Collapsed;
+                if (loadingPnl != null) loadingPnl.Visibility = Visibility.Visible;
+
+                if (_btnExportProd != null) _btnExportProd.IsEnabled = false;
+                if (_btnExportTest != null) _btnExportTest.IsEnabled = false;
+
+                if (spinnerTransform != null)
+                {
+                    var anim = new DoubleAnimation
+                    {
+                        From = 0,
+                        To = 360,
+                        Duration = TimeSpan.FromMilliseconds(750),
+                        RepeatBehavior = RepeatBehavior.Forever
+                    };
+                    spinnerTransform.BeginAnimation(RotateTransform.AngleProperty, anim);
+                }
+            }
+            else
+            {
+                if (spinnerTransform != null)
+                {
+                    spinnerTransform.BeginAnimation(RotateTransform.AngleProperty, null);
+                    spinnerTransform.Angle = 0;
+                }
+
+                if (loadingPnl != null) loadingPnl.Visibility = Visibility.Collapsed;
+                if (normalPnl != null) normalPnl.Visibility = Visibility.Visible;
+
+                if (_btnExportProd != null) _btnExportProd.IsEnabled = true;
+                if (_btnExportTest != null) _btnExportTest.IsEnabled = true;
+            }
+        }
+
+        private async void ExportDirectly(string targetDir, string backupDir, string envName)
+        {
+            if (_isExporting) return;
+
             if (_dgTariff != null)
             {
                 _dgTariff.CommitEdit(DataGridEditingUnit.Row, true);
@@ -1545,6 +1606,8 @@ namespace OrdTarifManager.UI
                 DarkMessageBox.Show(this, "Es sind keine Zeilen zum Generieren vorhanden.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            bool isProd = string.Equals(envName, "PROD", StringComparison.OrdinalIgnoreCase);
 
             try
             {
@@ -1565,45 +1628,62 @@ namespace OrdTarifManager.UI
                 string safeName = SanitizeFileName(!string.IsNullOrEmpty(meta.Name) ? meta.Name : "Tarif");
                 string fileName = safeName + ".xml";
 
-                // 1. Verzeichnisse prüfen und bei Bedarf erstellen
-                if (!Directory.Exists(targetDir))
+                // Starte Ladeanimation im entsprechenden Button
+                SetExportLoading(isProd, true);
+                var startTime = DateTime.UtcNow;
+
+                // 1. Verzeichnisse prüfen und bei Bedarf erstellen (asynchron, da Netzlaufwerk N:\ laggen kann)
+                string dirError = null;
+                await Task.Run(() =>
                 {
                     try
                     {
-                        Directory.CreateDirectory(targetDir);
+                        if (!Directory.Exists(targetDir)) Directory.CreateDirectory(targetDir);
                     }
                     catch (Exception ex)
                     {
-                        DarkMessageBox.Show(this, string.Format("Das {0}-Verzeichnis konnte nicht erreicht werden:\n{1}\n\nFehler: {2}\n\nBitte stellen Sie sicher, dass das Netzlaufwerk N:\\ verbunden und erreichbar ist.", envName, targetDir, ex.Message),
-                            "Netzwerkpfad nicht erreichbar", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
+                        dirError = string.Format("Das {0}-Verzeichnis konnte nicht erreicht werden:\n{1}\n\nFehler: {2}\n\nBitte stellen Sie sicher, dass das Netzlaufwerk N:\\ verbunden und erreichbar ist.", envName, targetDir, ex.Message);
                     }
+                });
+
+                if (dirError != null)
+                {
+                    SetExportLoading(isProd, false);
+                    DarkMessageBox.Show(this, dirError, "Netzwerkpfad nicht erreichbar", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
                 }
 
-                if (!Directory.Exists(backupDir))
+                string backupDirError = null;
+                await Task.Run(() =>
                 {
                     try
                     {
-                        Directory.CreateDirectory(backupDir);
+                        if (!Directory.Exists(backupDir)) Directory.CreateDirectory(backupDir);
                     }
                     catch (Exception ex)
                     {
-                        DarkMessageBox.Show(this, string.Format("Das Archiv-Verzeichnis für {0} konnte nicht erreicht oder erstellt werden:\n{1}\n\nFehler: {2}\n\nBitte stellen Sie sicher, dass das Netzlaufwerk N:\\ verbunden und erreichbar ist.", envName, backupDir, ex.Message),
-                            "Archivpfad nicht erreichbar", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
+                        backupDirError = string.Format("Das Archiv-Verzeichnis für {0} konnte nicht erreicht oder erstellt werden:\n{1}\n\nFehler: {2}\n\nBitte stellen Sie sicher, dass das Netzlaufwerk N:\\ verbunden und erreichbar ist.", envName, backupDir, ex.Message);
                     }
+                });
+
+                if (backupDirError != null)
+                {
+                    SetExportLoading(isProd, false);
+                    DarkMessageBox.Show(this, backupDirError, "Archivpfad nicht erreichbar", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
                 }
 
                 string targetFullPath = Path.Combine(targetDir, fileName);
                 string backupFullPath = Path.Combine(backupDir, fileName);
 
-                bool targetExists = File.Exists(targetFullPath);
-                bool backupExists = File.Exists(backupFullPath);
+                bool targetExists = false;
+                bool backupExists = false;
+                DateTime lastModified = DateTime.MinValue;
 
-                // 2. Pre-Flight Check: Prüfen, ob die Datei bereits im Ziel- oder Archivordner existiert
-                if (targetExists || backupExists)
+                await Task.Run(() =>
                 {
-                    DateTime lastModified = DateTime.MinValue;
+                    targetExists = File.Exists(targetFullPath);
+                    backupExists = File.Exists(backupFullPath);
                     if (targetExists)
                     {
                         try { lastModified = File.GetLastWriteTime(targetFullPath); } catch { }
@@ -1612,7 +1692,11 @@ namespace OrdTarifManager.UI
                     {
                         try { lastModified = File.GetLastWriteTime(backupFullPath); } catch { }
                     }
+                });
 
+                // 2. Pre-Flight Check: Prüfen, ob die Datei bereits im Ziel- oder Archivordner existiert
+                if (targetExists || backupExists)
+                {
                     string dateStr = lastModified != DateTime.MinValue
                         ? string.Format(" (zuletzt geändert: {0:dd.MM.yyyy 'um' HH:mm 'Uhr'})", lastModified)
                         : "";
@@ -1630,22 +1714,57 @@ namespace OrdTarifManager.UI
 
                     if (result != MessageBoxResult.Yes)
                     {
+                        SetExportLoading(isProd, false);
                         HideExportFlyout(true);
                         return; // Abgebrochen -> Keine Datei wird geschrieben!
                     }
                 }
 
-                // 3. Datei im Hauptverzeichnis speichern (ORD Outbound)
-                _engine.SaveToFile(targetFullPath);
+                // 3. Datei im Hauptverzeichnis speichern (ORD Outbound) und 4. Sicherungskopie im Archiv ablegen
+                string saveError = null;
+                string backupExMessage = null;
 
-                // 4. Exakte Sicherungskopie im Archivordner ablegen
-                try
+                await Task.Run(() =>
                 {
-                    _engine.SaveToFile(backupFullPath);
+                    try
+                    {
+                        _engine.SaveToFile(targetFullPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        saveError = ex.Message;
+                        return;
+                    }
+
+                    try
+                    {
+                        _engine.SaveToFile(backupFullPath);
+                    }
+                    catch (Exception bEx)
+                    {
+                        backupExMessage = bEx.Message;
+                    }
+                });
+
+                if (saveError != null)
+                {
+                    SetExportLoading(isProd, false);
+                    DarkMessageBox.Show(this, "Fehler beim Speichern der XML-Datei:\n" + saveError, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-                catch (Exception backupEx)
+
+                // Mindestanzeigedauer (~500ms) für ein klares, responsives visuelles Feedback
+                var elapsed = DateTime.UtcNow - startTime;
+                if (elapsed < TimeSpan.FromMilliseconds(500))
                 {
-                    DarkMessageBox.Show(this, string.Format("Der Tarif wurde auf {0} hochgeladen, aber die Sicherungskopie im Archiv konnte nicht gespeichert werden:\n{1}", envName, backupEx.Message),
+                    await Task.Delay(TimeSpan.FromMilliseconds(500) - elapsed);
+                }
+
+                SetExportLoading(isProd, false);
+
+                if (backupExMessage != null)
+                {
+                    DarkMessageBox.Show(this, string.Format("Der Tarif wurde auf {0} hochgeladen, aber die Sicherungskopie im Archiv konnte nicht gespeichert werden:\n{1}", envName, backupExMessage),
                         "Hinweis", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
@@ -1655,6 +1774,7 @@ namespace OrdTarifManager.UI
             }
             catch (Exception ex)
             {
+                SetExportLoading(isProd, false);
                 DarkMessageBox.Show(this, "Fehler beim Speichern der XML-Datei:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -1704,6 +1824,7 @@ namespace OrdTarifManager.UI
         {
             if (_flyoutCloseTimer != null) _flyoutCloseTimer.Stop();
             if (_flyoutExportMenu == null || _flyoutExportMenu.Visibility != Visibility.Visible) return;
+            if (_isExporting && !immediate) return;
 
             if (immediate)
             {
