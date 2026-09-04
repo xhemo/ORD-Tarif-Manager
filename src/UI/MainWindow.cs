@@ -29,13 +29,49 @@ namespace OrdTarifManager.UI
         private static string GetBackupDirectory(bool isProd)
         {
             string sub = isProd ? "PROD" : "TEST";
-            string correctBase = @"N:\intern\Speditionsbüro Ulm_Donautal\ORTEC Docs\Outbound\ORD zuletzt hochgeladene Tarife";
-            string origBase = @"N:\intern\Speditionsbüro Ulm_Donautal\ORTEC Docs\Outbound\ORD zuletzt hochgladene Tarife";
+            string correctBase = @"N:\intern\Speditionsbüro Ulm_Donautal\ORTEC Docs\ORD zuletzt hochgeladene Tarife";
+            string origBase = @"N:\intern\Speditionsbüro Ulm_Donautal\ORTEC Docs\ORD zuletzt hochgladene Tarife";
             string correctPath = Path.Combine(correctBase, sub);
             string origPath = Path.Combine(origBase, sub);
             if (Directory.Exists(correctPath)) return correctPath;
             if (Directory.Exists(origPath)) return origPath;
             return correctPath;
+        }
+
+        private static void CleanupMisplacedOutboundArchive()
+        {
+            try
+            {
+                string[] oldBases = new[]
+                {
+                    @"N:\intern\Speditionsbüro Ulm_Donautal\ORTEC Docs\Outbound\ORD zuletzt hochgeladene Tarife",
+                    @"N:\intern\Speditionsbüro Ulm_Donautal\ORTEC Docs\Outbound\ORD zuletzt hochgladene Tarife"
+                };
+                string targetBase = @"N:\intern\Speditionsbüro Ulm_Donautal\ORTEC Docs\ORD zuletzt hochgeladene Tarife";
+
+                foreach (var oldBase in oldBases)
+                {
+                    if (Directory.Exists(oldBase))
+                    {
+                        foreach (string sub in new[] { "PROD", "TEST" })
+                        {
+                            string oldSub = Path.Combine(oldBase, sub);
+                            string targetSub = Path.Combine(targetBase, sub);
+                            if (Directory.Exists(oldSub))
+                            {
+                                if (!Directory.Exists(targetSub)) Directory.CreateDirectory(targetSub);
+                                foreach (var file in Directory.GetFiles(oldSub))
+                                {
+                                    string dest = Path.Combine(targetSub, Path.GetFileName(file));
+                                    if (!File.Exists(dest)) File.Move(file, dest);
+                                }
+                            }
+                        }
+                        Directory.Delete(oldBase, true);
+                    }
+                }
+            }
+            catch { }
         }
 
         private string _lastDirectory;
@@ -1887,6 +1923,8 @@ namespace OrdTarifManager.UI
         {
             ThreadPool.QueueUserWorkItem(state =>
             {
+                CleanupMisplacedOutboundArchive();
+
                 string prodBackup = GetBackupDirectory(true);
                 string prodMain = ProdDirectory;
                 bool prodReachable = Directory.Exists(prodBackup) || Directory.Exists(prodMain);
