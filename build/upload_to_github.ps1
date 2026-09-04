@@ -191,8 +191,9 @@ host=github.com
                 }
 
                 $rawBytes = [System.IO.File]::ReadAllBytes($exeFile)
-                $assetName = "ORD-Tarif-Manager.exe"
-                $uploadUrl = "https://uploads.github.com/repos/$repoOwner/$repoName/releases/$releaseId/assets?name=$assetName"
+                $assetName = "ORD Tarif Manager.exe"
+                $escapedName = [System.Uri]::EscapeDataString($assetName)
+                $uploadUrl = "https://uploads.github.com/repos/$repoOwner/$repoName/releases/$releaseId/assets?name=$escapedName"
 
                 $wc = New-Object System.Net.WebClient
                 $wc.Headers.Add("Authorization", "Bearer $token")
