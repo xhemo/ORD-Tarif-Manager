@@ -89,11 +89,11 @@ namespace OrdTarifManager.UI
         private Button _btnGenerateXml;
 
         private Grid _pnlExportContainer;
-        private Border _flyoutExportMenu;
+        private FrameworkElement _flyoutExportMenu;
         private TranslateTransform _flyoutTransform;
         private Button _btnExportProd;
         private Button _btnExportTest;
-        private Border _badgeSuccessNotification;
+        private FrameworkElement _badgeSuccessNotification;
         private ScaleTransform _badgeScale;
         private TranslateTransform _badgeTranslate;
         private TextBlock _txtSuccessTitle;
@@ -118,6 +118,11 @@ namespace OrdTarifManager.UI
             MinWidth = 980;
             MinHeight = 620;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            SnapsToDevicePixels = true;
+            UseLayoutRounding = true;
+            TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
+            TextOptions.SetTextRenderingMode(this, TextRenderingMode.ClearType);
+            RenderOptions.SetClearTypeHint(this, ClearTypeHint.Enabled);
 
             DwmHelper.EnableDarkMode(this);
 
@@ -189,11 +194,11 @@ namespace OrdTarifManager.UI
             _btnGenerateXml = (Button)root.FindName("BtnGenerateXml");
 
             _pnlExportContainer = (Grid)root.FindName("PnlExportContainer");
-            _flyoutExportMenu = (Border)root.FindName("FlyoutExportMenu");
+            _flyoutExportMenu = (FrameworkElement)root.FindName("FlyoutExportMenu");
             _flyoutTransform = (TranslateTransform)root.FindName("FlyoutTransform");
             _btnExportProd = (Button)root.FindName("BtnExportProd");
             _btnExportTest = (Button)root.FindName("BtnExportTest");
-            _badgeSuccessNotification = (Border)root.FindName("BadgeSuccessNotification");
+            _badgeSuccessNotification = (FrameworkElement)root.FindName("BadgeSuccessNotification");
             _badgeScale = (ScaleTransform)root.FindName("BadgeScale");
             _badgeTranslate = (TranslateTransform)root.FindName("BadgeTranslate");
             _txtSuccessTitle = (TextBlock)root.FindName("TxtSuccessTitle");
@@ -1645,13 +1650,24 @@ namespace OrdTarifManager.UI
             var animY = new DoubleAnimation
             {
                 To = 0,
-                Duration = TimeSpan.FromMilliseconds(200),
+                Duration = TimeSpan.FromMilliseconds(160),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             var animOpacity = new DoubleAnimation
             {
                 To = 1.0,
-                Duration = TimeSpan.FromMilliseconds(200)
+                Duration = TimeSpan.FromMilliseconds(160)
+            };
+            animOpacity.Completed += (s, e) =>
+            {
+                // Detach animation clock so WPF re-enables full subpixel ClearType rendering
+                _flyoutExportMenu.BeginAnimation(UIElement.OpacityProperty, null);
+                _flyoutExportMenu.Opacity = 1.0;
+                if (_flyoutTransform != null)
+                {
+                    _flyoutTransform.BeginAnimation(TranslateTransform.YProperty, null);
+                    _flyoutTransform.Y = 0;
+                }
             };
 
             if (_flyoutTransform != null)
@@ -1668,6 +1684,8 @@ namespace OrdTarifManager.UI
 
             if (immediate)
             {
+                _flyoutExportMenu.BeginAnimation(UIElement.OpacityProperty, null);
+                if (_flyoutTransform != null) _flyoutTransform.BeginAnimation(TranslateTransform.YProperty, null);
                 _flyoutExportMenu.Visibility = Visibility.Collapsed;
                 _flyoutExportMenu.Opacity = 0;
                 if (_flyoutTransform != null) _flyoutTransform.Y = 15;
@@ -1677,17 +1695,21 @@ namespace OrdTarifManager.UI
             var animY = new DoubleAnimation
             {
                 To = 15,
-                Duration = TimeSpan.FromMilliseconds(180),
+                Duration = TimeSpan.FromMilliseconds(140),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
             };
             var animOpacity = new DoubleAnimation
             {
                 To = 0,
-                Duration = TimeSpan.FromMilliseconds(180)
+                Duration = TimeSpan.FromMilliseconds(140)
             };
             animOpacity.Completed += (s, e) =>
             {
+                _flyoutExportMenu.BeginAnimation(UIElement.OpacityProperty, null);
+                if (_flyoutTransform != null) _flyoutTransform.BeginAnimation(TranslateTransform.YProperty, null);
                 _flyoutExportMenu.Visibility = Visibility.Collapsed;
+                _flyoutExportMenu.Opacity = 0;
+                if (_flyoutTransform != null) _flyoutTransform.Y = 15;
             };
 
             if (_flyoutTransform != null)
@@ -1718,28 +1740,45 @@ namespace OrdTarifManager.UI
             {
                 From = 0.55,
                 To = 1.0,
-                Duration = TimeSpan.FromMilliseconds(320),
+                Duration = TimeSpan.FromMilliseconds(260),
                 EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.35 }
             };
             var animScaleY = new DoubleAnimation
             {
                 From = 0.55,
                 To = 1.0,
-                Duration = TimeSpan.FromMilliseconds(320),
+                Duration = TimeSpan.FromMilliseconds(260),
                 EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.35 }
             };
             var animTranslateY = new DoubleAnimation
             {
                 From = 12,
                 To = 0,
-                Duration = TimeSpan.FromMilliseconds(280),
+                Duration = TimeSpan.FromMilliseconds(220),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             var animOpacity = new DoubleAnimation
             {
                 From = 0,
                 To = 1.0,
-                Duration = TimeSpan.FromMilliseconds(200)
+                Duration = TimeSpan.FromMilliseconds(180)
+            };
+            animOpacity.Completed += (s, e) =>
+            {
+                _badgeSuccessNotification.BeginAnimation(UIElement.OpacityProperty, null);
+                _badgeSuccessNotification.Opacity = 1.0;
+                if (_badgeTranslate != null)
+                {
+                    _badgeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
+                    _badgeTranslate.Y = 0;
+                }
+                if (_badgeScale != null)
+                {
+                    _badgeScale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+                    _badgeScale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+                    _badgeScale.ScaleX = 1.0;
+                    _badgeScale.ScaleY = 1.0;
+                }
             };
 
             if (_badgeScale != null)
@@ -1773,17 +1812,20 @@ namespace OrdTarifManager.UI
             var animOpacity = new DoubleAnimation
             {
                 To = 0,
-                Duration = TimeSpan.FromMilliseconds(350),
+                Duration = TimeSpan.FromMilliseconds(250),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
             };
             var animTranslateY = new DoubleAnimation
             {
                 To = -8,
-                Duration = TimeSpan.FromMilliseconds(350)
+                Duration = TimeSpan.FromMilliseconds(250)
             };
             animOpacity.Completed += (s, e) =>
             {
+                _badgeSuccessNotification.BeginAnimation(UIElement.OpacityProperty, null);
+                if (_badgeTranslate != null) _badgeTranslate.BeginAnimation(TranslateTransform.YProperty, null);
                 _badgeSuccessNotification.Visibility = Visibility.Collapsed;
+                _badgeSuccessNotification.Opacity = 0;
             };
 
             if (_badgeTranslate != null)

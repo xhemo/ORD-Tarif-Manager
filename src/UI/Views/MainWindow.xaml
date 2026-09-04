@@ -727,88 +727,110 @@
                         <!-- Floating Canvas Layer for Flyout and Badge -->
                         <Canvas HorizontalAlignment="Right" VerticalAlignment="Top" Width="0" Height="0" ClipToBounds="False">
                             <!-- Slide-Up Flyout Menu (Floats directly above BtnGenerateXml) -->
-                            <Border x:Name="FlyoutExportMenu"
-                                    Canvas.Right="0"
-                                    Canvas.Bottom="8"
-                                    Background="#121622"
-                                    BorderBrush="#262F42"
-                                    BorderThickness="1.2"
-                                    CornerRadius="8"
-                                    Padding="6,6"
-                                    Visibility="Collapsed"
-                                    Opacity="0"
-                                    Panel.ZIndex="200">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="16" ShadowDepth="4" Direction="270" Color="#000000" Opacity="0.6"/>
-                                </Border.Effect>
-                                <Border.RenderTransform>
+                            <Grid x:Name="FlyoutExportMenu"
+                                  Canvas.Right="0"
+                                  Canvas.Bottom="8"
+                                  Visibility="Collapsed"
+                                  Opacity="0"
+                                  Panel.ZIndex="200"
+                                  UseLayoutRounding="True"
+                                  SnapsToDevicePixels="True">
+                                <Grid.RenderTransform>
                                     <TranslateTransform x:Name="FlyoutTransform" Y="15"/>
-                                </Border.RenderTransform>
-                                <StackPanel Width="205">
-                                    <Button x:Name="BtnExportProd"
-                                            Content="&#x1F680;  Direkt auf PROD laden"
-                                            Style="{StaticResource StandardBtn}"
-                                            HorizontalContentAlignment="Left"
-                                            Height="32"
-                                            Padding="10,4"
-                                            Margin="0,0,0,4"/>
-                                    <Button x:Name="BtnExportTest"
-                                            Content="&#x1F9EA;  Direkt auf TEST laden"
-                                            Style="{StaticResource StandardBtn}"
-                                            HorizontalContentAlignment="Left"
-                                            Height="32"
-                                            Padding="10,4"/>
-                                </StackPanel>
-                            </Border>
+                                </Grid.RenderTransform>
+                                <!-- Isolated Shadow Layer (No child text -> Zero raster blur!) -->
+                                <Border Background="#121622"
+                                        CornerRadius="8">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="16" ShadowDepth="4" Direction="270" Color="#000000" Opacity="0.65"/>
+                                    </Border.Effect>
+                                </Border>
+                                <!-- Crisp Vector Content Layer -->
+                                <Border Background="#121622"
+                                        BorderBrush="#262F42"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="6,6"
+                                        TextOptions.TextFormattingMode="Display"
+                                        TextOptions.TextRenderingMode="ClearType"
+                                        RenderOptions.ClearTypeHint="Enabled">
+                                    <StackPanel Width="205">
+                                        <Button x:Name="BtnExportProd"
+                                                Content="&#x1F680;  Direkt auf PROD laden"
+                                                Style="{StaticResource StandardBtn}"
+                                                HorizontalContentAlignment="Left"
+                                                Height="32"
+                                                Padding="10,4"
+                                                Margin="0,0,0,4"/>
+                                        <Button x:Name="BtnExportTest"
+                                                Content="&#x1F9EA;  Direkt auf TEST laden"
+                                                Style="{StaticResource StandardBtn}"
+                                                HorizontalContentAlignment="Left"
+                                                Height="32"
+                                                Padding="10,4"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
 
                             <!-- Success Toast Badge with Animated Checkmark -->
-                            <Border x:Name="BadgeSuccessNotification"
-                                    Canvas.Right="0"
-                                    Canvas.Bottom="8"
-                                    Background="#0F241A"
-                                    BorderBrush="{StaticResource BrushSuccess}"
-                                    BorderThickness="1.2"
-                                    CornerRadius="8"
-                                    Padding="12,8"
-                                    Visibility="Collapsed"
-                                    Opacity="0"
-                                    IsHitTestVisible="False"
-                                    Panel.ZIndex="300">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="14" ShadowDepth="3" Direction="270" Color="#000000" Opacity="0.7"/>
-                                </Border.Effect>
-                                <Border.RenderTransform>
+                            <Grid x:Name="BadgeSuccessNotification"
+                                  Canvas.Right="0"
+                                  Canvas.Bottom="8"
+                                  Visibility="Collapsed"
+                                  Opacity="0"
+                                  IsHitTestVisible="False"
+                                  Panel.ZIndex="300"
+                                  UseLayoutRounding="True"
+                                  SnapsToDevicePixels="True">
+                                <Grid.RenderTransform>
                                     <TransformGroup>
                                         <ScaleTransform x:Name="BadgeScale" ScaleX="0.7" ScaleY="0.7" CenterX="100" CenterY="20"/>
                                         <TranslateTransform x:Name="BadgeTranslate" Y="10"/>
                                     </TransformGroup>
-                                </Border.RenderTransform>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Border Width="24" Height="24" CornerRadius="12" Background="{StaticResource BrushSuccess}" Margin="0,0,10,0" VerticalAlignment="Center">
-                                        <Path Data="{StaticResource IconCheck}"
-                                              Stroke="White"
-                                              StrokeThickness="2.2"
-                                              StrokeStartLineCap="Round"
-                                              StrokeEndLineCap="Round"
-                                              StrokeLineJoin="Round"
-                                              Width="12" Height="10"
-                                              Stretch="Uniform"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock x:Name="TxtSuccessTitle"
-                                                   Text="Gespeichert!"
-                                                   FontWeight="Bold"
-                                                   FontSize="12.5"
-                                                   Foreground="#34D399"/>
-                                        <TextBlock x:Name="TxtSuccessDetail"
-                                                   Text="Erfolgreich abgelegt"
-                                                   FontSize="11"
-                                                   Foreground="{StaticResource BrushTextSecondary}"/>
+                                </Grid.RenderTransform>
+                                <!-- Isolated Shadow Layer -->
+                                <Border Background="#0F241A"
+                                        CornerRadius="8">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="14" ShadowDepth="3" Direction="270" Color="#000000" Opacity="0.7"/>
+                                    </Border.Effect>
+                                </Border>
+                                <!-- Crisp Content Layer -->
+                                <Border Background="#0F241A"
+                                        BorderBrush="{StaticResource BrushSuccess}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="12,8"
+                                        TextOptions.TextFormattingMode="Display"
+                                        TextOptions.TextRenderingMode="ClearType"
+                                        RenderOptions.ClearTypeHint="Enabled">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="24" Height="24" CornerRadius="12" Background="{StaticResource BrushSuccess}" Margin="0,0,10,0" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconCheck}"
+                                                  Stroke="White"
+                                                  StrokeThickness="2"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"
+                                                  StrokeLineJoin="Round"
+                                                  Width="12" Height="10"
+                                                  Stretch="Uniform"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock x:Name="TxtSuccessTitle"
+                                                       Text="Gespeichert!"
+                                                       FontWeight="Bold"
+                                                       FontSize="12.5"
+                                                       Foreground="#34D399"/>
+                                            <TextBlock x:Name="TxtSuccessDetail"
+                                                       Text="Erfolgreich abgelegt"
+                                                       FontSize="11"
+                                                       Foreground="{StaticResource BrushTextSecondary}"/>
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
-                            </Border>
+                                </Border>
+                            </Grid>
                         </Canvas>
                     </Grid>
                 </Grid>
