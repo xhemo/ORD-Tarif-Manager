@@ -68,9 +68,7 @@
                                 BorderThickness="1"
                                 CornerRadius="6"
                                 Padding="8,5"
-                                Margin="0,0,0,6"
-                                Cursor="Hand"
-                                ToolTip="Klicken, um auf 'Umsatz &#x2022; Gewicht (kg)' zu wechseln">
+                                Margin="0,0,0,6">
                             <StackPanel>
                                 <TextBlock x:Name="TxtSidebarTagWeight"
                                            Text="Umsatz &#x2022; Gewicht (kg)"
@@ -94,9 +92,7 @@
                                 BorderThickness="1"
                                 CornerRadius="6"
                                 Padding="8,5"
-                                Margin="0,0,0,6"
-                                Cursor="Hand"
-                                ToolTip="Klicken, um auf 'Umsatz &#x2022; Volumen (m&#x00B3;)' zu wechseln">
+                                Margin="0,0,0,6">
                             <StackPanel>
                                 <TextBlock x:Name="TxtSidebarTagVolume"
                                            Text="Umsatz &#x2022; Volumen (m&#x00B3;)"
@@ -120,9 +116,7 @@
                                 BorderThickness="1"
                                 CornerRadius="6"
                                 Padding="8,5"
-                                Margin="0,0,0,6"
-                                Cursor="Hand"
-                                ToolTip="Klicken, um auf 'Kosten &#x2022; Gewicht (kg)' zu wechseln">
+                                Margin="0,0,0,6">
                             <StackPanel>
                                 <TextBlock x:Name="TxtSidebarTagTcWeight"
                                            Text="Kosten &#x2022; Gewicht (kg)"
@@ -146,9 +140,7 @@
                                 BorderThickness="1"
                                 CornerRadius="6"
                                 Padding="8,5"
-                                Margin="0,0,0,4"
-                                Cursor="Hand"
-                                ToolTip="Klicken, um auf 'Kosten &#x2022; Volumen (m&#x00B3;)' zu wechseln">
+                                Margin="0,0,0,4">
                             <StackPanel>
                                 <TextBlock x:Name="TxtSidebarTagTcVolume"
                                            Text="Kosten &#x2022; Volumen (m&#x00B3;)"
@@ -475,7 +467,8 @@
                                 BorderThickness="1"
                                 CornerRadius="4"
                                 Padding="10,0,10,0"
-                                ToolTip="Aktive Tarifspezifikation">
+                                Cursor="Hand"
+                                ToolTip="Klicken, um die Tarifspezifikation anzupassen">
                             <TextBlock x:Name="TxtSpecDisplay"
                                        Text="(TC)SteppedWeightDistanceConsolidation"
                                        FontSize="11.5"

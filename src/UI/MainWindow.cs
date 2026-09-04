@@ -325,14 +325,11 @@ namespace OrdTarifManager.UI
                 };
                 _btnSpecSelector.MouseLeftButtonDown += (s, e) =>
                 {
-                    OpenSpecificationDropDown();
+                    OpenEditTariffSpecificationDialog();
                 };
             }
 
-            if (_sidebarSpecWeight != null) _sidebarSpecWeight.MouseLeftButtonDown += (s, e) => OnSidebarSpecClicked("SteppedWeightDistanceConsolidation");
-            if (_sidebarSpecVolume != null) _sidebarSpecVolume.MouseLeftButtonDown += (s, e) => OnSidebarSpecClicked("SteppedVolumeDistanceConsolidation");
-            if (_sidebarSpecTcWeight != null) _sidebarSpecTcWeight.MouseLeftButtonDown += (s, e) => OnSidebarSpecClicked("(TC)SteppedWeightDistanceConsolidation");
-            if (_sidebarSpecTcVolume != null) _sidebarSpecTcVolume.MouseLeftButtonDown += (s, e) => OnSidebarSpecClicked("(TC)SteppedVolumeDistanceConsolidation");
+            // Die Seitenleiste-Kacheln dienen rein als Statusanzeige (nicht anklickbar)
 
             if (_btnRefreshRecent != null) _btnRefreshRecent.Click += (s, e) => RefreshRecentFiles();
             if (_btnOpenProdDir != null)
@@ -473,13 +470,13 @@ namespace OrdTarifManager.UI
 
             if (isActive)
             {
-                border.Background = new SolidColorBrush(Color.FromRgb(0x13, 0x2A, 0x1F));
+                border.Background = new SolidColorBrush(Color.FromArgb(0x35, 0x10, 0xB9, 0x81));
                 border.BorderBrush = (Brush)FindResource("BrushSuccess");
-                border.BorderThickness = new Thickness(1.2);
+                border.BorderThickness = new Thickness(1.5);
                 tag.Foreground = (Brush)FindResource("BrushSuccess");
                 tag.FontWeight = FontWeights.Bold;
                 specText.Foreground = new SolidColorBrush(Colors.White);
-                specText.FontWeight = FontWeights.Bold;
+                specText.FontWeight = FontWeights.SemiBold;
             }
             else
             {
@@ -540,42 +537,70 @@ namespace OrdTarifManager.UI
             }
         }
 
-        private void OnSidebarSpecClicked(string targetSpec)
+        private void OpenEditTariffSpecificationDialog()
         {
-            // Direkt umschalten – KEIN Dialogfenster öffnen!
-            SetSpecificationByName(targetSpec, true);
-        }
-
-        private void OpenSpecificationDropDown()
-        {
-            if (_btnSpecSelector == null) return;
-            var menu = new ContextMenu();
-
-            var specs = new[]
+            if (_dataTable == null || _dataTable.Columns.Count == 0)
             {
-                new { Title = "Umsatz • Gewicht (kg)", Spec = "SteppedWeightDistanceConsolidation" },
-                new { Title = "Umsatz • Volumen (m³)", Spec = "SteppedVolumeDistanceConsolidation" },
-                new { Title = "Kosten • Gewicht (kg)", Spec = "(TC)SteppedWeightDistanceConsolidation" },
-                new { Title = "Kosten • Volumen (m³)", Spec = "(TC)SteppedVolumeDistanceConsolidation" }
-            };
-
-            string current = GetCurrentSpecification();
-
-            foreach (var item in specs)
-            {
-                var mi = new MenuItem
-                {
-                    Header = item.Title + "  (" + item.Spec + ")",
-                    IsChecked = string.Equals(current, item.Spec, StringComparison.OrdinalIgnoreCase)
-                };
-                string specToSet = item.Spec;
-                mi.Click += (s, e) => SetSpecificationByName(specToSet, true);
-                menu.Items.Add(mi);
+                CreateNewTariff();
+                return;
             }
 
-            menu.PlacementTarget = _btnSpecSelector;
-            menu.Placement = PlacementMode.Bottom;
-            menu.IsOpen = true;
+            string currentName = _txtName != null && !string.IsNullOrWhiteSpace(_txtName.Text) ? _txtName.Text.Trim() : "";
+            string currentSpec = GetCurrentSpecification();
+            bool isCost = currentSpec.IndexOf("(TC)", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool isVolume = currentSpec.IndexOf("Volume", StringComparison.OrdinalIgnoreCase) >= 0;
+            int orderKind = (_cmbOrderKind != null && _cmbOrderKind.SelectedIndex == 1) ? 3 : 2;
+            DateTime validFrom = _dpValidFrom != null && _dpValidFrom.SelectedDate.HasValue ? _dpValidFrom.SelectedDate.Value : DateTime.Today;
+            DateTime validTo = _dpValidTo != null && _dpValidTo.SelectedDate.HasValue ? _dpValidTo.SelectedDate.Value : new DateTime(2099, 12, 31);
+
+            var dlg = new CreateTariffDialog(this, true, currentName, isCost, isVolume, orderKind, validFrom, validTo);
+            if (dlg.ShowDialog() == true)
+            {
+                try
+                {
+                    _txtName.Text = dlg.TariffName;
+                    _txtName.ToolTip = dlg.TariffName;
+                    _dpValidFrom.SelectedDate = dlg.ValidFrom;
+                    _dpValidTo.SelectedDate = dlg.ValidTo;
+                    _cmbOrderKind.SelectedIndex = (dlg.SelectedOrderKind == 3) ? 1 : 0;
+
+                    _currentSpec = dlg.SpecName;
+                    if (_txtSpecDisplay != null)
+                    {
+                        _txtSpecDisplay.Text = dlg.SpecName;
+                    }
+                    if (_btnSpecSelector != null)
+                    {
+                        _btnSpecSelector.ToolTip = dlg.SpecName;
+                    }
+
+                    _engine.ApplySpecificationChange(_dataTable, dlg.IsCost, dlg.IsVolume, dlg.SelectedOrderKind, dlg.SpecName);
+
+                    var meta = new TariffMetadata
+                    {
+                        Id = dlg.TariffName,
+                        Name = dlg.TariffName,
+                        ValidFrom = dlg.ValidFrom.ToString("yyyy-MM-dd"),
+                        ValidTo = dlg.ValidTo.ToString("yyyy-MM-dd"),
+                        Spec = dlg.SpecName,
+                        OrderKind = dlg.SelectedOrderKind
+                    };
+                    _engine.UpdateMetadata(meta);
+
+                    BuildGridColumns();
+                    if (_dgTariff.ItemsSource != null)
+                    {
+                        _dgTariff.Items.Refresh();
+                    }
+
+                    UpdateSpecificationSidebar(dlg.SpecName);
+                    UpdateUiState();
+                }
+                catch (Exception ex)
+                {
+                    DarkMessageBox.Show(this, "Fehler beim Anpassen der Tarifspezifikation:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void ApplyCurrentSpecification()
