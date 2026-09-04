@@ -44,7 +44,7 @@ namespace OrdTarifManager.Core
                 new XElement("name", meta.Name),
                 new XElement("valid_from_date", meta.ValidFrom),
                 new XElement("valid_till_date", meta.ValidTo),
-                new XElement("price_kind_code", isCost ? "Kosten" : "Erlös")
+                new XElement("price_kind_code", "Erlös")
             );
             root.Add(resTariff);
 
@@ -294,8 +294,7 @@ namespace OrdTarifManager.Core
                         SetOrAddElement(item, "tariff_item_spec", meta.Spec);
                     }
 
-                    bool isCost = meta.Spec.IndexOf("(TC)", StringComparison.OrdinalIgnoreCase) >= 0;
-                    SetOrAddElement(resTariff, "price_kind_code", isCost ? "Kosten" : "Erlös");
+                    SetOrAddElement(resTariff, "price_kind_code", "Erlös");
 
                     bool isVolume = meta.Spec.IndexOf("Volume", StringComparison.OrdinalIgnoreCase) >= 0;
                     foreach (XElement item in CurrentDoc.Descendants("tariff_item"))
@@ -364,7 +363,7 @@ namespace OrdTarifManager.Core
                 XElement resTariff = CurrentDoc.Root.Element("resource_tariff");
                 if (resTariff != null)
                 {
-                    SetOrAddElement(resTariff, "price_kind_code", isCost ? "Kosten" : "Erlös");
+                    SetOrAddElement(resTariff, "price_kind_code", "Erlös");
                 }
 
                 foreach (XElement item in CurrentDoc.Descendants("tariff_item"))
