@@ -583,7 +583,7 @@ namespace OrdTarifManager.UI
             string currentSpec = GetCurrentSpecification();
             if (_btnSpecSelector != null)
             {
-                _btnSpecSelector.ToolTip = currentSpec + "\n\n💡 Klicken, um Tarifspezifikation anzupassen";
+                _btnSpecSelector.ToolTip = currentSpec;
             }
             UpdateSpecificationSidebar(currentSpec);
 
@@ -629,7 +629,7 @@ namespace OrdTarifManager.UI
 
             if (_btnSpecSelector != null)
             {
-                _btnSpecSelector.ToolTip = trimmed + "\n\n💡 Klicken, um Tarifspezifikation anzupassen";
+                _btnSpecSelector.ToolTip = trimmed;
             }
 
             UpdateSpecificationSidebar(trimmed);

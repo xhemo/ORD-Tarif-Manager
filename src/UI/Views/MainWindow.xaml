@@ -475,28 +475,13 @@
                                 BorderThickness="1"
                                 CornerRadius="4"
                                 Padding="10,0,10,0"
-                                Cursor="Hand"
-                                ToolTip="Klicken, um die Tarifspezifikation anzupassen">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="TxtSpecDisplay"
-                                           Grid.Column="0"
-                                           Text="(TC)SteppedWeightDistanceConsolidation"
-                                           FontSize="11.5"
-                                           Foreground="#CBD5E1"
-                                           VerticalAlignment="Center"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Grid.Column="1"
-                                           Text="&#x25BE;"
-                                           FontSize="13"
-                                           FontWeight="Bold"
-                                           Foreground="#8A96A8"
-                                           VerticalAlignment="Center"
-                                           Margin="6,0,0,0"/>
-                            </Grid>
+                                ToolTip="Aktive Tarifspezifikation">
+                            <TextBlock x:Name="TxtSpecDisplay"
+                                       Text="(TC)SteppedWeightDistanceConsolidation"
+                                       FontSize="11.5"
+                                       Foreground="#CBD5E1"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
                         </Border>
                     </StackPanel>
                 </Grid>
