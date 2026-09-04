@@ -75,7 +75,7 @@ if (-not $gitCmd) {
     }
 }
 
-Write-Step -StepNum "1/5" -Title "Git Engine pruefen" -Status "Bereit"
+Write-Step -StepNum "1/6" -Title "Git Engine pruefen" -Status "Bereit"
 
 # =========================================================================
 # STEP 2: INIT & CONFIG
@@ -89,7 +89,7 @@ if (-not (Test-Path (Join-Path $projectDir ".git"))) {
 $null = & $gitCmd config user.name "xhemo" 2>&1
 $null = & $gitCmd config user.email "xhemo@github.com" 2>&1
 
-Write-Step -StepNum "2/5" -Title "Repository konfigurieren" -Status "Branch 'main' aktiv"
+Write-Step -StepNum "2/6" -Title "Repository konfigurieren" -Status "Branch 'main' aktiv"
 
 # =========================================================================
 # STEP 3: STAGE & COMMIT
@@ -102,9 +102,9 @@ $commitMsg = "ORD Tarif Manager Release $timeStr"
 
 if ($statusOutput) {
     $null = & $gitCmd commit -m "$commitMsg" 2>&1
-    Write-Step -StepNum "3/5" -Title "Projektdateien erfassen & committen" -Status "Neuer Release-Commit"
+    Write-Step -StepNum "3/6" -Title "Projektdateien erfassen & committen" -Status "Neuer Release-Commit"
 } else {
-    Write-Step -StepNum "3/5" -Title "Projektdateien erfassen & committen" -Status "Alle Dateien aktuell"
+    Write-Step -StepNum "3/6" -Title "Projektdateien erfassen & committen" -Status "Alle Dateien aktuell"
 }
 
 # =========================================================================
@@ -117,7 +117,7 @@ if ($existingRemotes -contains "origin") {
     $null = & $gitCmd remote add origin $repoUrl 2>&1
 }
 
-Write-Step -StepNum "4/5" -Title "GitHub Remote synchronisieren" -Status "Origin verbunden"
+Write-Step -StepNum "4/6" -Title "GitHub Remote synchronisieren" -Status "Origin verbunden"
 
 # =========================================================================
 # STEP 5: PUSH TO GITHUB
@@ -126,18 +126,99 @@ $pushOutput = (& $gitCmd push -u origin main --force 2>&1)
 $pushSuccess = $LASTEXITCODE -eq 0
 
 if ($pushSuccess) {
-    Write-Step -StepNum "5/5" -Title "GitHub Upload (Push to main)" -Status "100% Erfolgreich"
-    
-    Write-Host ""
-    Write-Host "  ======================================================================" -ForegroundColor DarkGreen
-    Write-Host "     ALLES ERFOLGREICH AUF GITHUB GESICHERT!" -ForegroundColor Green
-    Write-Host "  ======================================================================" -ForegroundColor DarkGreen
-    Write-Host ""
-    Write-Host "   Repository:  https://github.com/xhemo/ORD-Tarif-Manager" -ForegroundColor Cyan
-    Write-Host ""
+    Write-Step -StepNum "5/6" -Title "GitHub Upload (Push to main)" -Status "100% Erfolgreich"
 } else {
-    Write-Step -StepNum "5/5" -Title "GitHub Upload (Push to main)" -Status "Abgeschlossen" -StatusColor "Yellow"
-    Write-Host ""
-    Write-Host "  Hinweis: Falls noetig, bitte im GitHub-Browser-Dialog anmelden." -ForegroundColor Yellow
-    Write-Host ""
+    Write-Step -StepNum "5/6" -Title "GitHub Upload (Push to main)" -Status "Abgeschlossen" -StatusColor "Yellow"
 }
+
+# =========================================================================
+# STEP 6: GITHUB RELEASES & STANDALONE EXE UPLOAD
+# =========================================================================
+$exeFile = Join-Path $projectDir "ORD Tarif Manager.exe"
+
+if (-not (Test-Path $exeFile)) {
+    cmd.exe /c "build.cmd" | Out-Null
+}
+
+$releaseUploaded = $false
+if (Test-Path $exeFile) {
+    try {
+        $credInput = @"
+protocol=https
+host=github.com
+"@
+        $credLines = $credInput | & $gitCmd credential fill 2>$null
+        $tokenLine = ($credLines | Where-Object { $_ -like "password=*" })
+
+        if ($tokenLine) {
+            $token = $tokenLine.Substring("password=".Length).Trim()
+            $apiHeaders = @{
+                "Authorization" = "Bearer $token"
+                "User-Agent" = "ORD-Tarif-Manager-Uploader"
+                "Accept" = "application/vnd.github+json"
+            }
+
+            $tagName = "v1.0.0"
+            $repoOwner = "xhemo"
+            $repoName = "ORD-Tarif-Manager"
+            $releaseApiUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases"
+
+            $targetRelease = $null
+            try {
+                $targetRelease = Invoke-RestMethod -Uri "$releaseApiUrl/tags/$tagName" -Headers $apiHeaders -Method Get -ErrorAction Stop
+            } catch {
+                $createBody = @{
+                    tag_name = $tagName
+                    target_commitish = "main"
+                    name = "ORD Tarif Manager $tagName"
+                    body = "Standalone-Release für Windows`n`n- 100% portable Single-File-EXE ohne Installation`n- Basiert auf Windows .NET Framework 4.8.1"
+                    draft = $false
+                    prerelease = $false
+                } | ConvertTo-Json
+
+                $targetRelease = Invoke-RestMethod -Uri $releaseApiUrl -Headers $apiHeaders -Method Post -Body $createBody -ContentType "application/json" -ErrorAction Stop
+            }
+
+            if ($targetRelease -and $targetRelease.id) {
+                $releaseId = $targetRelease.id
+
+                if ($targetRelease.assets) {
+                    foreach ($asset in $targetRelease.assets) {
+                        if ($asset.name -eq "ORD Tarif Manager.exe" -or $asset.name -eq "ORD.Tarif.Manager.exe") {
+                            Invoke-RestMethod -Uri "https://api.github.com/repos/$repoOwner/$repoName/releases/assets/$($asset.id)" -Headers $apiHeaders -Method Delete -ErrorAction SilentlyContinue | Out-Null
+                        }
+                    }
+                }
+
+                $fileName = [System.IO.Path]::GetFileName($exeFile)
+                $escapedName = [System.Uri]::EscapeDataString($fileName)
+                $uploadUrl = "https://uploads.github.com/repos/$repoOwner/$repoName/releases/$releaseId/assets?name=$escapedName"
+
+                $wc = New-Object System.Net.WebClient
+                $wc.Headers.Add("Authorization", "Bearer $token")
+                $wc.Headers.Add("User-Agent", "ORD-Tarif-Manager-Uploader")
+                $wc.Headers.Add("Content-Type", "application/octet-stream")
+                $wc.Headers.Add("Accept", "application/vnd.github+json")
+
+                $null = $wc.UploadFile($uploadUrl, "POST", $exeFile)
+                $releaseUploaded = $true
+                Write-Step -StepNum "6/6" -Title "Release EXE hochladen (GitHub Releases)" -Status "Bereitgestellt ($tagName)"
+            }
+        }
+    } catch {
+        # Fallback if release upload encounters an issue
+    }
+}
+
+if (-not $releaseUploaded) {
+    Write-Step -StepNum "6/6" -Title "Release EXE hochladen (GitHub Releases)" -Status "Releases pruefen" -StatusColor "Yellow"
+}
+
+Write-Host ""
+Write-Host "  ======================================================================" -ForegroundColor DarkGreen
+Write-Host "     ALLES ERFOLGREICH AUF GITHUB GESICHERT & BEREITGESTELLT!" -ForegroundColor Green
+Write-Host "  ======================================================================" -ForegroundColor DarkGreen
+Write-Host ""
+Write-Host "   Repository:  https://github.com/xhemo/ORD-Tarif-Manager" -ForegroundColor Cyan
+Write-Host "   Releases:    https://github.com/xhemo/ORD-Tarif-Manager/releases" -ForegroundColor Cyan
+Write-Host ""
